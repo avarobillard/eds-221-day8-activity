@@ -2,4 +2,63 @@
 title: "data_viz"
 format: html
 ---
+# Task 1: Worst graph
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(paletteer)
+library(patchwork)
+```
+
+```{r}
+space_data <- read_csv(here("data", "space_launches.csv"))
+```
+
+```{r}
+p1 <- ggplot(data = space_data, aes(x = launch_year, y = agency)) +
+  geom_boxplot(aes(fill = agency))
+
+p2 <- ggplot(data = space_data, aes(x = launch_year, y = agency)) +
+  geom_boxplot(aes(fill = agency))
+
+p3 <- ggplot(data = space_data, aes(x = launch_year, y = agency)) +
+  geom_boxplot(aes(fill = agency))
+
+bad_plot <- (p1|p2)/p2 & theme_void() +
+  theme( plot.background = element_rect(fill = grid::linearGradient(
+      c("magenta","orange", "yellow", "green3", "blue", "violet"), # Define your gradient colors
+      x1 = unit(0, "npc"), y1 = unit(0, "npc"), # Starting point of gradient
+      x2 = unit(0, "npc"), y2 = unit(1, "npc")  # Ending point of gradient (vertical gradient)
+    )))
+
+ggsave(here("figs", "bad_plot.png"), height = 5, width = 6)
+```
+```{r}
+sf_data <- read_csv(here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv"))
+
+summary_year_commodity <- sf_data %>% 
+  group_by(Calendar_Year, Commodity_Type) %>% 
+  summarize(total_gas_emissions = sum(Emissions_mtCO2e))
+
+summary_sector <- sf_data %>% 
+  group_by(Sector_General) %>% 
+  summarize(total_gas_emissions = sum(Emissions_mtCO2e))
+```
+
+```{r}
+# data wrangling
+sf_tidy <- sf_data %>% 
+  filter(Sector_General == "Agriculture") %>% 
+  group_by(Calendar_Year) %>% 
+  summarize(total_emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+  
+
+# plotting
+good_graph <- ggplot(data = sf_data, aes(x = Calendar_Year, y = total_emissions)) +
+  geom_point()
+
+good_graph
+```
 
